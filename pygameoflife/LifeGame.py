@@ -1,6 +1,8 @@
 import sys, pygame, random
 
-# TODO write readme
+# TODO make cells clickable when the simulation isn't running
+# TODO add text to display current generation # being displayed
+# TODO make start/stop/clear grid operations into buttons
 # TODO package as pip package
 # TODO push to pypi
 
