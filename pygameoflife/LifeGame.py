@@ -1,19 +1,23 @@
-import sys, pygame, random, time
+import sys, pygame, random
 
 BOARD_SIZE = WIDTH, HEIGHT = 640, 480
 CELL_SIZE = 10
 DEAD_COLOR = 0, 0, 0
 ALIVE_COLOR = 0, 255, 255
 
+MAX_FPS = 8
+
 
 class LifeGame:
 
     def __init__(self):
         pygame.init()
-
         self.screen = pygame.display.set_mode(BOARD_SIZE)
         self.clear_screen()
         pygame.display.flip()
+
+        self.last_update_completed = 0
+        self.desired_milliseconds_between_updates = (1.0 / MAX_FPS) * 1000.0
 
         self.active_grid = 0
         self.num_cols = int(WIDTH / CELL_SIZE)
@@ -41,18 +45,19 @@ class LifeGame:
         self.grids.append(create_grid())
         self.grids.append(create_grid())
 
-    """
-    Examples:
-    # set_grid(0) # all dead
-    # set_grid(1) # all alive
-    # set_grid() # random
-    # set_grid(None) # random
-    
-    :param value:
-    :return:
-    """
+        self.set_grid()
 
     def set_grid(self, value=None, grid=0):
+        """
+        Examples:
+        # set_grid(0) # all dead
+        # set_grid(1) # all alive
+        # set_grid() # random
+        # set_grid(None) # random
+
+        :param value:
+        :return:
+        """
         for c in range(self.num_cols):
             for r in range(self.num_rows):
                 if value is None:
@@ -88,7 +93,20 @@ class LifeGame:
         # Inspect the current active generation
         # update the inactive grid to store next generation
         # swap out the active grid
+        # self.set_grid(0, self.inactive_grid())
+        # for r in range(self.num_rows - 1):
+        #     for c in range(self.num_cols - 1):
+        #         next_gen_state = self.check_cell_neighbors
         pass
+
+    def inactive_grid(self):
+        """
+        Helper function to get the index of the inactive grid
+        If active grid is 0 will return 1 and vice-versa.
+
+        :return:
+        """
+        return (self.active_grid + 1) % 2
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -100,11 +118,22 @@ class LifeGame:
 
     def run(self):
         while True:
-            print('Hello')
             self.handle_events()
             # Time checking?
             self.update_generation()
+            self.set_grid()
             self.draw_grid()
+            self.cap_frame_rate()
+
+            # cap framerate at 60 fps, if time since the last frame draw < 1/60th of a second, sleep for remaining time
+
+    def cap_frame_rate(self):
+        now = pygame.time.get_ticks()
+        milliseconds_since_last_update = now - self.last_update_completed
+        time_to_sleep = self.desired_milliseconds_between_updates - milliseconds_since_last_update
+        if time_to_sleep > 0:
+            pygame.time.delay(int(time_to_sleep))
+        self.last_update_completed = now
 
 
 if __name__ == "__main__":
