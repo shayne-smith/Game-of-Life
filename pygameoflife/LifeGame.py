@@ -253,3 +253,11 @@ class LifeGame:
         if time_to_sleep > 0:
             pygame.time.delay(int(time_to_sleep))
         self.last_update_completed = now
+
+
+if __name__ == "__main__":
+    """
+    Launch a game of life
+    """
+    game = LifeGame()
+    game.run()
