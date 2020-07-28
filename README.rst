@@ -1,6 +1,8 @@
 Conway's Game of Life
 =====================
 
+Simple pygame implementation of Conway's Game of Life
+
 Installation
 ------------
 
@@ -30,3 +32,17 @@ Using inside of code
 To import the class into your own code::
 
   from pygameoflife import LifeGame
+
+
+Controls
+--------
+
+There are a couple keybinds available:
+
+- q - Quit
+- s - Start/Stop (toggle pause)
+- r - Randomize the grid
+
+Contact
+-------
+Shayne Smith <shayne.m.smith@vanderbilt.edu>
