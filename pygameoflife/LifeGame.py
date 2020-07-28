@@ -5,7 +5,7 @@ CELL_SIZE = 10
 DEAD_COLOR = 0, 0, 0
 ALIVE_COLOR = 0, 255, 255
 
-MAX_FPS = 8
+MAX_FPS = 9
 
 
 class LifeGame:
@@ -27,15 +27,7 @@ class LifeGame:
         self.set_grid()
 
     def init_grids(self):
-        # self.num_cols = int(WIDTH / CELL_SIZE)
-        # self.num_rows = int(HEIGHT / CELL_SIZE)
-        # print("Columns: %d\nRows: %d" % (self.num_cols, self.num_rows))
-        # self.grids = [[[0] * self.num_rows] * self.num_cols,
-        #               [[0] * self.num_rows] * self.num_cols]
-        # self.active_grid = 0
-        #
-        # self.set_grid()
-        # print(self.grids[0])
+
         def create_grid():
             rows = []
             for row_num in range(self.num_rows):
@@ -55,7 +47,7 @@ class LifeGame:
         # set_grid() # random
         # set_grid(None) # random
 
-        :param value:
+        :param value, grid:
         :return:
         """
         for c in range(self.num_cols):
@@ -89,15 +81,52 @@ class LifeGame:
     def clear_screen(self):
         self.screen.fill(DEAD_COLOR)
 
+    def get_cell(self, r, c):
+        try:
+            cell_value = self.grids[self.active_grid][r][c]
+        except:
+            cell_value = 0
+        return cell_value
+
+    def check_cell_neighbors(self, row_index, col_index):
+        # get the number of alive cells surrounding current cell
+
+        num_alive_neighbors = 0
+        num_alive_neighbors += self.get_cell(row_index - 1, col_index - 1)
+        num_alive_neighbors += self.get_cell(row_index - 1, col_index)
+        num_alive_neighbors += self.get_cell(row_index - 1, col_index + 1)
+        num_alive_neighbors += self.get_cell(row_index, col_index - 1)
+        num_alive_neighbors += self.get_cell(row_index, col_index + 1)
+        num_alive_neighbors += self.get_cell(row_index + 1, col_index - 1)
+        num_alive_neighbors += self.get_cell(row_index + 1, col_index)
+        num_alive_neighbors += self.get_cell(row_index + 1, col_index + 1)
+
+        # Rules for life and death
+        if self.grids[self.active_grid][row_index][col_index] == 1: # alive
+            if num_alive_neighbors > 3:  # Overpopulation
+                return 0
+            if num_alive_neighbors < 2:  # Underpopulation
+                return 0
+            if num_alive_neighbors == 2 or num_alive_neighbors == 3:  # Survive
+                return 1
+        elif self.grids[self.active_grid][row_index][col_index] == 0: # dead
+            if num_alive_neighbors == 3:
+                return 1 # come to life
+
+        return self.grids[self.active_grid][row_index][col_index]
+
     def update_generation(self):
-        # Inspect the current active generation
-        # update the inactive grid to store next generation
-        # swap out the active grid
-        # self.set_grid(0, self.inactive_grid())
-        # for r in range(self.num_rows - 1):
-        #     for c in range(self.num_cols - 1):
-        #         next_gen_state = self.check_cell_neighbors
-        pass
+        """
+        Inspect current generation state, prepare next generation
+        :return:
+        """
+        self.set_grid(0, self.inactive_grid())
+        for c in range(self.num_cols):  # another solution sets this to self.num_cols - 1
+            for r in range(self.num_rows):  # another solution sets this to self.num_rows - 1
+                next_gen_state = self.check_cell_neighbors(r, c)
+                # set inactive grid future cell state
+                self.grids[self.inactive_grid()][r][c] = next_gen_state
+        self.active_grid = self.inactive_grid()
 
     def inactive_grid(self):
         """
@@ -121,11 +150,8 @@ class LifeGame:
             self.handle_events()
             # Time checking?
             self.update_generation()
-            self.set_grid()
             self.draw_grid()
             self.cap_frame_rate()
-
-            # cap framerate at 60 fps, if time since the last frame draw < 1/60th of a second, sleep for remaining time
 
     def cap_frame_rate(self):
         now = pygame.time.get_ticks()
